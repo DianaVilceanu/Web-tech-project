@@ -1,24 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Attendance Monitoring</title>
-    <!-- Include your CSS and JavaScript files here -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Monitoring App</title>
 </head>
 <body>
-    <header>
-        <!-- Navigation and branding -->
-    </header>
-    
-    <main>
-        <!-- Main content area -->
-        <!-- This could include forms for adding events, displaying QR codes, etc. -->
-    </main>
-    
-    <footer>
-        <!-- Footer content -->
-    </footer>
+    <h1>Attendance Monitoring App</h1>
 
-    <!-- Include any JavaScript that needs to run after the page is loaded -->
+    <!-- Event Creation Form -->
+    <form id="eventForm">
+        <input type="text" id="eventName" placeholder="Event Name" required>
+        <input type="date" id="eventDate" required>
+        <button type="submit">Create Event</button>
+    </form>
+
+    <!-- QR Code Display -->
+    <div id="qrCodeDisplay"></div>
+
+    <script src="app.js"></script>
 </body>
 </html>

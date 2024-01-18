@@ -1,21 +1,48 @@
-// Import the necessary modules
 const express = require('express');
-const bodyParser = require('body-parser');
-
-// Create an instance of an Express app
+const QRCode = require('qrcode');
 const app = express();
 
-// Middleware to parse JSON bodies from HTTP requests
-app.use(bodyParser.json());
+app.use(express.json()); // for parsing application/json
 
-// Define a route for getting events
+// Temporary storage (Replace with database in production)
+let events = [];
+
+// Get all events
 app.get('/events', (req, res) => {
-    // Fetch events from the database and send them as a response
+    res.json(events);
 });
 
-// Define a route for creating an event
+// Create an event
 app.post('/events', (req, res) => {
-    // Create a new event in the database using data from req.body
+    const newEvent = {
+        name: req.body.name,
+        date: req.body.date,
+        state: 'CLOSED',
+        attendees: []
+    };
+    events.push(newEvent);
+    res.json({ message: 'Event created', event: newEvent });
+});
+
+// Generate QR code for an event
+app.get('/eventQRCode', (req, res) => {
+    const eventCode = req.query.eventCode;
+    QRCode.toDataURL(eventCode, function (err, url) {
+        if (err) res.status(500).send("Error generating QR code");
+        else res.json({ qrCode: url });
+    });
+});
+
+// Mark attendance
+app.post('/attendance', (req, res) => {
+    const { eventName, participantName } = req.body;
+    const event = events.find(e => e.name === eventName);
+    if (event && event.state === 'OPEN') {
+        event.attendees.push({ name: participantName, time: new Date() });
+        res.json({ message: 'Attendance marked' });
+    } else {
+        res.status(400).send('Event not found or not open');
+    }
 });
 
 // Start the server
