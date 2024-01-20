@@ -6,6 +6,8 @@ function EventForm() {
 const [startTime, setStartTime] = useState('');
 const [endTime, setEndTime] = useState('');
 const [eventState, setEventState] = useState('');
+const [eventName, setEventName] = useState('');
+const [eventDate, setEventDate] = useState('');
 
     // Update handleSubmit
 const handleSubmit = async (e) => {
