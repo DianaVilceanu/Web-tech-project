@@ -7,9 +7,10 @@ const ExcelJS = require('exceljs'); // For generating Excel files
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const bodyParser = require('body-parser');
 
 app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
@@ -43,6 +44,14 @@ db.serialize(() => {
         FOREIGN KEY (eventId) REFERENCES events (id)
     )`);
     db.run("CREATE TABLE IF NOT EXISTS users (email TEXT PRIMARY KEY, password TEXT NOT NULL)");
+    db.run(`CREATE TABLE IF NOT EXISTS event_groups (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        description TEXT NOT NULL,
+        repeatInterval TEXT NOT NULL,
+        startDate TEXT NOT NULL,
+        endDate TEXT NOT NULL
+    )`);
    
 });
 
@@ -129,22 +138,21 @@ app.get('/attendance/:eventId', (req, res) => {
 const bcrypt = require('bcrypt');
 
 
-app.post('/register', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
+app.post('/register', (req, res) => {
+  const { email, password } = req.body;
 
-    // Insert into the database
-    const sql = `INSERT INTO users (email, password) VALUES (?, ?)`;
-    db.run(sql, [email, hashedPassword], function(err) {
-      if (err) {
-        throw err;
-      }
-      res.status(200).json({ message: "User registered successfully", userId: this.lastID });
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  db.run(`INSERT INTO users(email, password) VALUES(?, ?)`, [email, password], function(err) {
+    if (err) {
+      console.error(err.message);
+      // Send a 500 status code and error message to the client
+      res.status(500).json({ message: 'An error occurred while registering. Please try again.' });
+      return;
+    }
+    // get the last insert id
+    console.log(`A row has been inserted with rowid ${this.lastID}`);
+    // Send a 201 status code and success message to the client
+    res.status(201).json({ message: 'Registration successful.' });
+  });
 });
 
 
