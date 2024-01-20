@@ -41,6 +41,7 @@ db.serialize(() => {
         attendanceTime TEXT NOT NULL,
         FOREIGN KEY (eventId) REFERENCES events (id)
     )`);
+    db.run("CREATE TABLE users (email TEXT PRIMARY KEY, password TEXT NOT NULL)");
 });
 
 app.post('/events', (req, res) => {
@@ -99,4 +100,57 @@ app.get('/attendance/:eventId', (req, res) => {
       res.status(200).json(rows);
   });
 });
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const saltRounds = 10;
+
+// ... existing code ...
+
+// User Registration
+app.post('/register', (req, res) => {
+    const { email, password } = req.body;
+  
+    bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
+      if (err) {
+        res.status(500).send(err.message);
+        return;
+      }
+  
+      const query = 'INSERT INTO users (email, password) VALUES (?, ?)';
+      db.run(query, [email, hashedPassword], function(err) {
+        if (err) {
+          res.status(500).send(err.message);
+          return;
+        }
+  
+        res.status(201).send({ userId: this.lastID });
+      });
+    });
+  });
+
+// User Login
+app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+    // Retrieve user from the database
+    const query = `SELECT * FROM users WHERE email = ?`;
+    db.get(query, [email], async (err, user) => {
+        if (err) {
+            res.status(500).send(err.message);
+            return;
+        }
+        if (user) {
+            // Compare provided password with the hashed password in the database
+            const validPassword = await bcrypt.compare(password, user.password);
+            if (validPassword) {
+                const token = jwt.sign({ userId: user.id }, 'yourSecretKey', { expiresIn: '1h' });
+                res.json({ token });
+            } else {
+                res.status(400).send('Invalid credentials');
+            }
+        } else {
+            res.status(400).send('User not found');
+        }
+    });
+});
+
 
