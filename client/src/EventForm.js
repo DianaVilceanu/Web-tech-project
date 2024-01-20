@@ -2,51 +2,116 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 function EventForm() {
-    // Add state for new fields
-const [startTime, setStartTime] = useState('');
-const [endTime, setEndTime] = useState('');
-const [eventState, setEventState] = useState('');
-const [eventName, setEventName] = useState('');
-const [eventDate, setEventDate] = useState('');
+  // State for form data
+  const [formData, setFormData] = useState({
+    eventName: '',
+    startTime: '',
+    endTime: '',
+    accessCode: '',
+    state: ''
+  });
 
-    // Update handleSubmit
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    const eventData = {
-        name: eventName, 
-        date: eventDate,
-        startTime, 
-        endTime, 
-        state: eventState
-    };
-    try {
-        const response = await axios.post('/events', eventData);
-        console.log(response.data);
-    } catch (error) {
-        console.error(error);
+  // State for form validation errors
+  const [errors, setErrors] = useState({});
+
+  // Handle form input changes
+  const handleChange = (event) => {
+    setFormData({ ...formData, [event.target.name]: event.target.value });
+  };
+
+  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+
+  // ... existing functions
+
+  const validateForm = () => {
+    let isValid = true;
+    // Check if all required fields are filled
+    Object.values(formData).forEach(value => {
+      if (!value) isValid = false;
+    });
+    return isValid;
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (validateForm()) {
+      // If the form is valid, set isFormSubmitted to true
+      setIsFormSubmitted(true);
+      // You can also include your form submission logic here
+    } else {
+      // Handle the case where the form is not valid
+      alert("Please fill in all the fields.");
     }
-};
+  };
 
-// Update your form
+  
+  return (
+    <div className="App">
+      {/* ... other component JSX */}
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Event Name</label>
+          <input
+            type="text"
+            name="eventName"
+            value={formData.eventName}
+            onChange={handleChange}
+          />
+          {errors.eventName && <div className="error">{errors.eventName}</div>}
+        </div>
 
-    return (
-        <form onSubmit={handleSubmit}>
-            {/* Existing Inputs for eventName and eventDate */}
-            <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required />
-            <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
-            <select value={eventState} onChange={(e) => setEventState(e.target.value)} required>
-                <option value="">Select State</option>
-                <option value="open">Open</option>
-                <option value="closed">Closed</option>
-            </select>
-            <button type="submit">Create Event</button>
-        </form>
-    );
+        <div>
+          <label>Start Time</label>
+          <input
+            type="datetime-local"
+            name="startTime"
+            value={formData.startTime}
+            onChange={handleChange}
+          />
+          {errors.startTime && <div className="error">{errors.startTime}</div>}
+        </div>
+
+        <div>
+          <label>End Time</label>
+          <input
+            type="datetime-local"
+            name="endTime"
+            value={formData.endTime}
+            onChange={handleChange}
+          />
+          {errors.endTime && <div className="error">{errors.endTime}</div>}
+        </div>
+
+        <div>
+          <label>Access Code</label>
+          <input
+            type="text"
+            name="accessCode"
+            value={formData.accessCode}
+            onChange={handleChange}
+          />
+          {errors.accessCode && <div className="error">{errors.accessCode}</div>}
+        </div>
+
+        <div>
+          <label>State</label>
+          <select
+            name="state"
+            value={formData.state}
+            onChange={handleChange}
+          >
+            <option value="">Select State</option>
+            <option value="OPEN">Open</option>
+            <option value="CLOSED">Closed</option>
+          </select>
+          {errors.state && <div className="error">{errors.state}</div>}
+        </div>
+
+        <button type="submit">Submit</button>
+      </form>
+      {/* ... other component JSX */}
+    </div>
+  );
 }
-
-
-
-
-
 
 export default EventForm;

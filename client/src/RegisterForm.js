@@ -8,28 +8,26 @@ function RegisterForm() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (password !== confirmPassword) {
-      alert("Passwords don't match");
-      return;
+  if (password !== confirmPassword) {
+    alert("Passwords don't match");
+    return;
+  }
+  try {
+    const response = await axios.post('http://localhost:5001/register', { email, password });
+    if (response.status === 201) {
+      localStorage.setItem('userToken', response.data.token);
+      window.location.href = '/home';
+    } else {
+      alert('Registration failed. Please try again.');
     }
-    try {
-      const response = await axios.post('http://localhost:3003/register', { email, password });
-      if (response.status === 201) {
-        // Registration successful
-        // For example, you might store the user's token in local storage and then redirect them to the home page
-        localStorage.setItem('userToken', response.data.token);
-        window.location.href = '/home';
-      } else {
-        // Registration failed
-        // For example, you might show an error message
-        alert('Registration failed. Please try again.');
-      }
-    } catch (error) {
-        console.error(error);
-      // Handle error (e.g., show error message)
-      // For example, you might show an error message
+  } catch (error) {
+    console.error(error);
+    if (error.message === 'Network Error' || error.message.includes('ERR_CONNECTION_REFUSED')) {
+      alert('Cannot connect to the server. Please try again later.');
+    } else {
       alert('An error occurred. Please try again.');
     }
+  }
   };
 
   return (
