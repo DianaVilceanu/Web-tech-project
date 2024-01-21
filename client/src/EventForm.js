@@ -37,13 +37,21 @@ function EventForm() {
     if (validateForm()) {
       // If the form is valid, set isFormSubmitted to true
       setIsFormSubmitted(true);
-      // You can also include your form submission logic here
+      // Make a POST request to the '/events' endpoint with the form data
+      axios.post('http://localhost:5001/events', formData)
+        .then(response => {
+          // Handle the response from the server
+          console.log(response.data);
+        })
+        .catch(error => {
+          // Handle the error
+          console.error(error);
+        });
     } else {
       // Handle the case where the form is not valid
       alert("Please fill in all the fields.");
     }
   };
-
   
   return (
     <div className="App">

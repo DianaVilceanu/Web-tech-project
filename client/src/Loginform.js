@@ -15,17 +15,27 @@ function LoginForm() {
       const response = await axios.post('http://localhost:5001/login', { email, password });
       if (response.status === 200) {
         localStorage.setItem('userToken', response.data.token);
-        navigate('/events'); // Use navigate instead of window.location.href
+        window.location.href = '/home';
       } else {
         alert('Login failed. Please try again.');
       }
     } catch (error) {
-      console.error(error);
-      if (error.message === 'Network Error' || error.message.includes('ERR_CONNECTION_REFUSED')) {
-        alert('Cannot connect to the server. Please try again later.');
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.log(error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+      } else if (error.request) {
+        // The request was made but no response was received
+        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        // http.ClientRequest in node.js
+        console.log(error.request);
       } else {
-        alert('An error occurred. Please try again.');
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message);
       }
+      console.log(error.config);
     }
   };
   return (

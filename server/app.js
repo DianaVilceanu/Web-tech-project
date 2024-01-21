@@ -3,7 +3,7 @@ const nodeCron = require('node-cron'); // For scheduling tasks
 const QRCode = require('qrcode'); // For generating QR codes
 const { Parser } = require('json2csv'); // For converting JSON to CSV
 const ExcelJS = require('exceljs'); // For generating Excel files
-
+const jwt = require('jsonwebtoken');
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -81,8 +81,8 @@ app.post('/events', generateAccessCode, generateQRCode, (req, res) => {
     const { name, startTime, endTime, state, groupId } = req.body;
     const accessCode = req.accessCode;
     const qrCodeData = req.qrCodeData; // URL to the QR code image
-    const query = `INSERT INTO events (id, name, description, repeatInterval, startDate, endDate) VALUES (?, ?, ?, ?, ?, ?)`;
-    db.run(query, [name, startTime, endTime, accessCode, state, groupId], function(err) {
+    const query = `INSERT INTO events (name, startDate, endDate, accessCode, state) VALUES (?, ?, ?, ?, ?)`;
+    db.run(query, [name, startTime, endTime, accessCode, state], function(err) {
       if (err) {
         return res.status(500).send(err.message);
       }
@@ -160,7 +160,7 @@ app.post('/login', (req, res) => {
   const { email, password } = req.body;
 
   db.get(`SELECT * FROM users WHERE email = ?`, [email], (err, row) => {
-    try{if (err) {
+    if (err) {
       res.status(500).json({ message: 'An error occurred. Please try again.' });
       return;
     }
@@ -170,7 +170,6 @@ app.post('/login', (req, res) => {
         if (result) {
           // Passwords match
           // Generate a token and send it to the client
-          const token = jwt.sign({ id: row.id }, 'your-secret-key', { expiresIn: '1h' });
           res.status(200).json({ token, user: { email: row.email } });
         } else {
           // Passwords don't match
@@ -181,25 +180,8 @@ app.post('/login', (req, res) => {
       // No user found with the provided email
       res.status(401).json({ message: 'Invalid credentials. Please try again.' });
     }
-  }
-    catch (error) {
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        console.log(error.response.data);
-        console.log(error.response.status);
-        console.log(error.response.headers);
-      } else if (error.request) {
-        // The request was made but no response was received
-        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-        // http.ClientRequest in node.js
-        console.log(error.request);
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        console.log('Error', error.message);
-      }
-      console.log(error.config);
-    }
+  
+    
   });
 });
   
