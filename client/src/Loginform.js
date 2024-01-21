@@ -40,18 +40,22 @@ function LoginForm() {
   };
   return (
     <form onSubmit={handleSubmit}>
+      <div>
       <input 
         type="email" 
         placeholder="Email" 
         value={email} 
         onChange={(e) => setEmail(e.target.value)} 
       />
+      </div>
+      <div>
       <input 
         type="password" 
         placeholder="Password" 
         value={password} 
         onChange={(e) => setPassword(e.target.value)} 
       />
+      </div>
       <button type="submit">Login</button>
     </form>
   );

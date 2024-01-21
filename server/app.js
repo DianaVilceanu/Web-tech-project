@@ -290,21 +290,6 @@ nodeCron.schedule('* * * * *', () => { // This cron job runs every minute, adjus
     });
   });
   
-  // Export participant data as CSV
-  app.get('/export-participants/csv/:eventId', (req, res) => {
-    const query = `SELECT * FROM participants WHERE eventId = ?`;
-    db.all(query, [req.params.eventId], (err, rows) => {
-      if (err) {
-        return res.status(500).send(err.message);
-      }
-      const json2csvParser = new Parser();
-      const csv = json2csvParser.parse(rows);
-      res.header('Content-Type', 'text/csv');
-      res.attachment('participants.csv');
-      return res.send(csv);
-    });
-  });
-  
   // Export participant data as Excel
   app.get('/export-participants/xlsx/:eventId', async (req, res) => {
     const workbook = new ExcelJS.Workbook();

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import ExportParticipantsButton from './ExportParticipantsButton'; // Import the component
 
 const AttendanceDashboard = () => {
   const [events, setEvents] = useState([]);
@@ -23,6 +24,7 @@ const AttendanceDashboard = () => {
               <li key={participant.id}>{participant.name} - {participant.attendanceTime}</li>
             ))}
           </ul>
+          <ExportParticipantsButton eventId={event.id} format='xlsx' /> {/* Add the export button */}
         </div>
       ))}
     </div>

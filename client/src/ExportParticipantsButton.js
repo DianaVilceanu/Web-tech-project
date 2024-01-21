@@ -1,21 +1,21 @@
-const ExportParticipantsButton = ({ eventId, format }) => {
-    const handleExport = async () => {
-      const response = await axios.get(`http://localhost:5001/export-participants/${format}/${eventId}`, {
-        responseType: 'blob' // Important for files
-      });
-      // Create a URL for the blob
-      const fileURL = window.URL.createObjectURL(new Blob([response.data]));
-      // Create a link to download it
-      const fileLink = document.createElement('a');
-      fileLink.href = fileURL;
-      fileLink.setAttribute('download', `participants.${format}`);
-      document.body.appendChild(fileLink);
-      fileLink.click();
-      fileLink.parentNode.removeChild(fileLink); // Clean up
-    };
-  
-    return (
-      <button onClick={handleExport}>Export as {format.toUpperCase()}</button>
-    );
+import React from 'react';
+import axios from 'axios';
+import { saveAs } from 'file-saver';
+
+const ExportParticipantsButton = ({ eventId, format = 'xlsx' }) => {
+  const exportParticipants = () => {
+    axios.get(`http://localhost:5001/export-participants/${format}/${eventId}`, {
+      responseType: 'blob', // Important
+    })
+    .then((response) => {
+      saveAs(new Blob([response.data]), `participants.${format}`);
+    })
+    .catch(console.error);
   };
-  
+
+  return (
+    <button onClick={exportParticipants}>Export Participants</button>
+  );
+};
+
+export default ExportParticipantsButton;
