@@ -241,7 +241,7 @@ app.post('/login', (req, res) => {
       });
     } else {
       // No user found with the provided email
-      res.status(401).json({ message: 'Invalid username. Please try again.' });
+      res.status(401).json({ message: 'Invalid credentials. Please try again.' });
     }
   
     
