@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-const api = axios.create({
-  baseURL: 'http://localhost:5001',
-});
 
 function LoginForm() {
   const [email, setEmail] = useState('');
@@ -15,18 +12,17 @@ function LoginForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await api.post('/login', { email, password });
+      const response = await axios.post('http://localhost:5001/login', { email, password });
       if (response.status === 200) {
         localStorage.setItem('userToken', response.data.token);
-        setUser(response.data.user);
-        navigate('/home'); // Use navigate
-      } else if (response.status === 401) {
-        alert('Invalid credentials. Please try again.');
+        navigate('/events'); // Use navigate instead of window.location.href
+      } else {
+        alert('Login failed. Please try again.');
       }
     } catch (error) {
       console.error(error);
-      if (error.response && error.response.status === 401) {
-        alert('Unauthorized: Invalid credentials. Please try again.');
+      if (error.message === 'Network Error' || error.message.includes('ERR_CONNECTION_REFUSED')) {
+        alert('Cannot connect to the server. Please try again later.');
       } else {
         alert('An error occurred. Please try again.');
       }

@@ -156,27 +156,52 @@ app.post('/register', (req, res) => {
 });
 
 
-app.post('/login', async (req, res) => {
-    try {
-      const { email, password } = req.body;
-  
-      // Retrieve user from database and verify password
-      const sql = `SELECT * FROM users WHERE email = ?`;
-      db.get(sql, [email], async (err, user) => {
-        if (err) {
-          throw err;
-        }
-        if (user && await bcrypt.compare(password, user.password)) {
-          // On success, create a session or token
-          res.status(200).json({ message: "Login successful", userId: user.id });
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+
+  db.get(`SELECT * FROM users WHERE email = ?`, [email], (err, row) => {
+    try{if (err) {
+      res.status(500).json({ message: 'An error occurred. Please try again.' });
+      return;
+    }
+    if (row) {
+      // Compare the hashed password in the database with the password provided by the user
+      bcrypt.compare(password, row.password, (err, result) => {
+        if (result) {
+          // Passwords match
+          // Generate a token and send it to the client
+          const token = jwt.sign({ id: row.id }, 'your-secret-key', { expiresIn: '1h' });
+          res.status(200).json({ token, user: { email: row.email } });
         } else {
-          res.status(401).json({ message: "Invalid credentials" });
+          // Passwords don't match
+          res.status(401).json({ message: 'Invalid credentials. Please try again.' });
         }
       });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+    } else {
+      // No user found with the provided email
+      res.status(401).json({ message: 'Invalid credentials. Please try again.' });
+    }
+  }
+    catch (error) {
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.log(error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+      } else if (error.request) {
+        // The request was made but no response was received
+        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        // http.ClientRequest in node.js
+        console.log(error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message);
+      }
+      console.log(error.config);
     }
   });
+});
   
   app.post('/add-event', (req, res) => {
     try {
@@ -265,6 +290,9 @@ nodeCron.schedule('* * * * *', () => { // This cron job runs every minute, adjus
     });
   });
 
-  app.listen(5001, function () {
+  app.listen(5001, function (err) {
+    if (err) {
+      return console.error('Error starting server:', err);
+    }
     console.log('App listening on port 5001!');
   });

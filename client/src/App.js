@@ -16,7 +16,7 @@ function App() {
   useEffect(() => {
     const fetchEventGroups = async () => {
       try {
-        const response = await axios.get('http://localhost:5001/event-groups');
+        const response = await axios.get('http://localhost:5001');
         setEventGroups(response.data);
       } catch (error) {
         console.error(error);
@@ -38,7 +38,7 @@ function App() {
           <Route path="api/admin/event" element={<EventForm />} />
           <Route path="api/admin/dashboard" element={<AttendanceDashboard />} />
           <Route path="api/participant" element={<ParticipantForm />} />
-          <Route path="/" element={<LoginForm />} />
+          <Route path="/api/login" element={<LoginForm />} />
           <Route path="api/register" element={<RegisterForm />} />
         </Routes>
           <Link to="api/login">

@@ -43,7 +43,6 @@ const EventGroupForm = () => {
           <option value="none">None</option>
           <option value="daily">Daily</option>
           <option value="weekly">Weekly</option>
-          {/* Add other intervals as needed */}
         </select>
       </label>
       <label>
