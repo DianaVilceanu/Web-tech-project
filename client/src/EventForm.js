@@ -52,11 +52,13 @@ function EventForm() {
   };
   
   return (
+    
     <div className="App">
+      
       {/* ... other component JSX */}
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Event Name</label>
+          <label>Event Name </label>
             <input
             type="text"
             name="name" // Changed from "eventName"
@@ -67,7 +69,7 @@ function EventForm() {
         </div>
 
         <div>
-          <label>Start Time</label>
+          <label>Start Time </label>
             <input
             type="datetime-local"
             name="startTime" // No change
@@ -78,7 +80,7 @@ function EventForm() {
         </div>
 
         <div>
-          <label>End Time</label>
+          <label>End Time </label>
                     <input
             type="datetime-local"
             name="endTime" // No change
@@ -88,7 +90,7 @@ function EventForm() {
           {errors.endTime && <div className="error">{errors.endTime}</div>}
         </div>
           
-        <label>Group id</label>
+        <label>Group id </label>
         <input
           type="text"
           name="groupId" // Add this field

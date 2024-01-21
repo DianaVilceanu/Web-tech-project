@@ -135,30 +135,68 @@ app.get('events/:id', (req, res) => {
       res.status(200).json(row);
   });
 });
-app.post('/attendance', (req, res) => {
-  const { eventId, participantName, attendanceTime } = req.body;
-  const query = `INSERT INTO participants (eventId, participantName, attendanceTime) VALUES (?, ?, ?)`;
-  db.run(query, [eventId, participantName, attendanceTime], function(err) {
+
+app.post('/participants', (req, res) => {
+  const { accessCode, participantName } = req.body;
+
+  // Validate the access code and get the event ID
+  db.get(`SELECT id FROM events WHERE accessCode = ?`, [accessCode], (err, row) => {
+    if (err) {
+      return res.status(500).send(err.message);
+    }
+    if (!row) {
+      return res.status(400).send('Invalid access code.');
+    }
+
+    const eventId = row.id;
+    const attendanceTime = new Date().toISOString();
+
+    // Insert a new row into the participants table
+    const query = `INSERT INTO participants (eventId, participantName, attendanceTime) VALUES (?, ?, ?)`;
+    db.run(query, [eventId, participantName, attendanceTime], function(err) {
       if (err) {
-          res.status(500).send(err.message);
-          return;
+        return res.status(500).send(err.message);
       }
       res.status(201).send({ participantId: this.lastID });
+    });
   });
 });
 
-app.get('/attendance/:eventId', (req, res) => {
-  const query = `SELECT * FROM participants WHERE eventId = ?`;
-  db.all(query, [req.params.eventId], (err, rows) => {
-      if (err) {
-          res.status(500).send(err.message);
-          return;
+
+app.get('/attendance', (req, res) => {
+  const query = `
+    SELECT events.id as eventId, events.name as eventName, participants.id as participantId, participants.participantName, participants.attendanceTime
+    FROM events
+    LEFT JOIN participants ON events.id = participants.eventId
+  `;
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      res.status(500).send(err.message);
+      return;
+    }
+    // Group participants by event
+    const events = {};
+    rows.forEach(row => {
+      if (!events[row.eventId]) {
+        events[row.eventId] = {
+          id: row.eventId,
+          name: row.eventName,
+          participants: [],
+        };
       }
-      res.status(200).json(rows);
+      if (row.participantId) {
+        events[row.eventId].participants.push({
+          id: row.participantId,
+          name: row.participantName,
+          attendanceTime: row.attendanceTime,
+        });
+      }
+    });
+    res.status(200).json(Object.values(events));
   });
 });
-const bcrypt = require('bcrypt');
 
+const bcrypt = require('bcrypt');
 
 app.post('/register', (req, res) => {
   const { email, password } = req.body;

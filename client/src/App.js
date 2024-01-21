@@ -33,19 +33,33 @@ function App() {
       </header>
       <main>
         <Router>
-          <Routes>
+        <Link to="api/login">
+            <button>Login</button>
+          </Link>
+          <Link to="api/register">
+            <button>Register</button>
+          </Link>
+          <div id="routes"><Routes>
           <Route path="api/admin/event-group" element={<EventGroupForm />} />
           <Route path="api/admin/event" element={<EventForm />} />
           <Route path="api/admin/dashboard" element={<AttendanceDashboard />} />
           <Route path="api/participant" element={<ParticipantForm />} />
           <Route path="/api/login" element={<LoginForm />} />
           <Route path="api/register" element={<RegisterForm />} />
-        </Routes>
-          <Link to="api/login">
-            <button>Login</button>
+          <Route path="api/attendance" element={<AttendanceDashboard />} />
+        </Routes></div>
+          
+        <Link to="api/admin/event-group">
+            <button>Create Event Group</button>
           </Link>
-          <Link to="api/register">
-            <button>Register</button>
+          <Link to="api/admin/event">
+            <button>Create Event</button>
+          </Link>
+          <Link to="api/admin/dashboard">
+            <button>Attendance Dashboard</button>
+          </Link>
+          <Link to="api/participant">
+            <button>Participant Form</button>
           </Link>
         </Router>
       </main>

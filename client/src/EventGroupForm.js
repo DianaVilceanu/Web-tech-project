@@ -29,14 +29,19 @@ const EventGroupForm = () => {
   return (
     <form onSubmit={handleSubmit}>
       <h2>Create Event Group</h2>
+      <div>
       <label>
         Name:
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
       </label>
+      </div>
+      <div>
       <label>
         Description:
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
       </label>
+      </div>
+      <div>
       <label>
         Repeat Interval:
         <select value={repeatInterval} onChange={(e) => setRepeatInterval(e.target.value)}>
@@ -45,15 +50,22 @@ const EventGroupForm = () => {
           <option value="weekly">Weekly</option>
         </select>
       </label>
+      </div>
+      <div>
       <label>
         Start Date:
         <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
       </label>
+      </div>
+      <div>
       <label>
         End Date:
         <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
       </label>
+      </div>
+      <div>
       <button type="submit">Create Group</button>
+      </div>
     </form>
   );
 };

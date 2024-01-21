@@ -1,29 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const AttendanceDashboard = ({ eventId }) => {
-  const [participants, setParticipants] = useState([]);
+const AttendanceDashboard = () => {
+  const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      axios.get(`http://localhost:5001/attendance/${eventId}`)
-        .then(response => {
-          setParticipants(response.data);
-        })
-        .catch(console.error);
-    }, 5000); // Polling every 5 seconds
-
-    return () => clearInterval(intervalId); // Clean up the interval on component unmount
-  }, [eventId]);
+    axios.get(`http://localhost:5001/attendance`)
+      .then(response => {
+        setEvents(response.data);
+      })
+      .catch(console.error);
+  }, []);
 
   return (
     <div>
-      <h2>Attendance List</h2>
-      <ul>
-        {participants.map(participant => (
-          <li key={participant.id}>{participant.participantName} - {participant.attendanceTime}</li>
-        ))}
-      </ul>
+      {events.map(event => (
+        <div key={event.id} style={{ border: '1px solid black', margin: '10px', padding: '10px' }}>
+          <h2>{event.name} (ID: {event.id})</h2>
+          <h3>Participants:</h3>
+          <ul>
+            {event.participants.map(participant => (
+              <li key={participant.id}>{participant.name} - {participant.attendanceTime}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </div>
   );
 };
