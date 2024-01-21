@@ -11,7 +11,7 @@ const EventGroupForm = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5001/event-groups', {
+      const response = await axios.post('http://localhost:5001/event-group', {
         name,
         description,
         repeatInterval,

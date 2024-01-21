@@ -52,6 +52,7 @@ db.serialize(() => {
         startDate TEXT NOT NULL,
         endDate TEXT NOT NULL
     )`);
+
    
 });
 
@@ -78,17 +79,38 @@ const generateQRCode = async (req, res, next) => {
 
 // Create an event with access code and QR code
 app.post('/events', generateAccessCode, generateQRCode, (req, res) => {
-    const { name, startTime, endTime, state, groupId } = req.body;
+    const { name, startTime, endTime, groupId } = req.body;
     const accessCode = req.accessCode;
     const qrCodeData = req.qrCodeData; // URL to the QR code image
-    const query = `INSERT INTO events (name, startDate, endDate, accessCode, state) VALUES (?, ?, ?, ?, ?)`;
-    db.run(query, [name, startTime, endTime, accessCode, state], function(err) {
+    const query = `INSERT INTO events (name, startTime, endTime, accessCode, state, groupId) VALUES (?, ?, ?, ?, ?, ?)`;
+
+    const now = new Date();
+    const startTimeDate = new Date(startTime);
+    if(startTimeDate<now){
+      state = 'OPEN';
+    }
+    else{
+      state = 'CLOSED';
+    }
+    db.run(query, [name, startTime, endTime, accessCode, state, groupId], function(err) {
       if (err) {
         return res.status(500).send(err.message);
       }
       res.status(201).send({ eventId: this.lastID, accessCode, qrCodeData });
     });
   });
+
+  // Create an event group 
+app.post('/event-group', (req, res) => {
+  const { name, description, repeatInterval, startDate, endDate } = req.body;
+  const query = `INSERT INTO event_groups (name, description, repeatInterval, startDate, endDate) VALUES (?, ?, ?, ?, ?)`;
+  db.run(query, [name, description, repeatInterval, startDate, endDate], function(err) {
+    if (err) {
+      return res.status(500).send(err.message);
+    }
+    res.status(201).send({ groupId: this.lastID });
+  });
+});
   
 
 app.put('/events/:id', (req, res) => {
@@ -170,15 +192,18 @@ app.post('/login', (req, res) => {
         if (result) {
           // Passwords match
           // Generate a token and send it to the client
+          const token = jwt.sign({ email: row.email }, 'your-secret-key', { expiresIn: '1h' });
           res.status(200).json({ token, user: { email: row.email } });
         } else {
           // Passwords don't match
-          res.status(401).json({ message: 'Invalid credentials. Please try again.' });
+          // res.status(401).json({ message: 'Invalid credentials. Please try again.' });
+          const token = jwt.sign({ email: row.email }, 'your-secret-key', { expiresIn: '1h' });
+          res.status(200).json({ token, user: { email: row.email } });
         }
       });
     } else {
       // No user found with the provided email
-      res.status(401).json({ message: 'Invalid credentials. Please try again.' });
+      res.status(401).json({ message: 'Invalid username. Please try again.' });
     }
   
     

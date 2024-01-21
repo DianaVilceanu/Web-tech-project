@@ -15,7 +15,7 @@ function LoginForm() {
       const response = await axios.post('http://localhost:5001/login', { email, password });
       if (response.status === 200) {
         localStorage.setItem('userToken', response.data.token);
-        window.location.href = '/home';
+        window.location.href = '/api/admin/event';
       } else {
         alert('Login failed. Please try again.');
       }

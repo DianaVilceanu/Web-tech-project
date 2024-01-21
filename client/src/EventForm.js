@@ -4,15 +4,14 @@ import axios from 'axios';
 function EventForm() {
   // State for form data
   const [formData, setFormData] = useState({
-    eventName: '',
-    startTime: '',
-    endTime: '',
-    accessCode: '',
-    state: ''
+    name: '', // Initial value for 'name'
+    startTime: '', // Initial value for 'startTime'
+    endTime: '', // Initial value for 'endTime'
+    groupId: '', // Initial value for 'groupId'
   });
-
   // State for form validation errors
   const [errors, setErrors] = useState({});
+  const [qrCodeData, setQrCodeData] = useState(null);
 
   // Handle form input changes
   const handleChange = (event) => {
@@ -40,12 +39,11 @@ function EventForm() {
       // Make a POST request to the '/events' endpoint with the form data
       axios.post('http://localhost:5001/events', formData)
         .then(response => {
-          // Handle the response from the server
-          console.log(response.data);
+          // Save the QR code data in the state
+          setQrCodeData(response.data.qrCodeData);
         })
         .catch(error => {
-          // Handle the error
-          console.error(error);
+          console.error(error.response.data);
         });
     } else {
       // Handle the case where the form is not valid
@@ -59,10 +57,10 @@ function EventForm() {
       <form onSubmit={handleSubmit}>
         <div>
           <label>Event Name</label>
-          <input
+            <input
             type="text"
-            name="eventName"
-            value={formData.eventName}
+            name="name" // Changed from "eventName"
+            value={formData.name} // Changed from "formData.eventName"
             onChange={handleChange}
           />
           {errors.eventName && <div className="error">{errors.eventName}</div>}
@@ -70,9 +68,9 @@ function EventForm() {
 
         <div>
           <label>Start Time</label>
-          <input
+            <input
             type="datetime-local"
-            name="startTime"
+            name="startTime" // No change
             value={formData.startTime}
             onChange={handleChange}
           />
@@ -81,43 +79,27 @@ function EventForm() {
 
         <div>
           <label>End Time</label>
-          <input
+                    <input
             type="datetime-local"
-            name="endTime"
+            name="endTime" // No change
             value={formData.endTime}
             onChange={handleChange}
           />
           {errors.endTime && <div className="error">{errors.endTime}</div>}
         </div>
-
-        <div>
-          <label>Access Code</label>
-          <input
-            type="text"
-            name="accessCode"
-            value={formData.accessCode}
-            onChange={handleChange}
-          />
-          {errors.accessCode && <div className="error">{errors.accessCode}</div>}
-        </div>
-
-        <div>
-          <label>State</label>
-          <select
-            name="state"
-            value={formData.state}
-            onChange={handleChange}
-          >
-            <option value="">Select State</option>
-            <option value="OPEN">Open</option>
-            <option value="CLOSED">Closed</option>
-          </select>
-          {errors.state && <div className="error">{errors.state}</div>}
-        </div>
+          
+        <label>Group id</label>
+        <input
+          type="text"
+          name="groupId" // Add this field
+          value={formData.groupId} // Add this field
+          onChange={handleChange}
+        />
 
         <button type="submit">Submit</button>
+         {/* Display the QR code */}
+    {qrCodeData && <img src={qrCodeData} alt="QR Code" />}
       </form>
-      {/* ... other component JSX */}
     </div>
   );
 }
